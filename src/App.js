@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import './App.css';
 
 class App extends Component {
   state = {
     converter: '',
     result: '',
-    error: ''
+    error: '',
+    copied: false
   };
   handleConvert = async () => {
     let type;
     let code = this.state.converter;
-    this.setState({ error: '' });
+    this.setState({ error: '', copied: false });
     if (code.includes('rgb')) {
       type = 'rgb';
       code = code.trim();
@@ -71,9 +73,24 @@ class App extends Component {
             Convert
           </button>
         </section>
-        <span className="converter__result" style={convertedStyle}>
-          {this.state.result} {this.state.error}
-        </span>
+
+        {this.state.result && (
+          <CopyToClipboard
+            text={this.state.result}
+            onCopy={() => this.setState({ copied: true })}
+          >
+            <div className="converter__group">
+              <span className="converter__result" style={convertedStyle}>
+                {this.state.result}
+              </span>
+              <button className="button">Copy</button>
+              {this.state.copied && (
+                <span className="copied-message">Copied</span>
+              )}
+            </div>
+          </CopyToClipboard>
+        )}
+        {this.state.error}
       </main>
     );
   }

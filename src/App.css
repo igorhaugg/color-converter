@@ -26,6 +26,11 @@
   display: flex;
 }
 
+.converter__group {
+  align-items: center;
+  display: flex;
+}
+
 .converter__input {
   background-color: transparent;
   border-bottom: 2px solid white;
@@ -38,6 +43,14 @@
 
 .converter__result {
   font-size: 2rem;
+  margin-right: 1rem;
+}
+
+.copied-message {
+  color: white;
+  font-style: italic;
+  margin-left: 1rem;
+  padding: 0.2rem 0.5rem;
 }
 
 .button {
