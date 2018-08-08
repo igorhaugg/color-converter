@@ -20,7 +20,7 @@ class App extends Component {
       console.log('ERror');
     }
     const data = await axios.get(
-      `http://www.thecolorapi.com/id?${type}=${code}`
+      `https://www.thecolorapi.com/id?${type}=${code}`
     );
     if (type === 'hex') {
       this.setState({ result: data.data.rgb.value });
