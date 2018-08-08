@@ -5,19 +5,28 @@ import './App.css';
 class App extends Component {
   state = {
     converter: '',
-    result: ''
+    result: '',
+    error: ''
   };
   handleConvert = async () => {
     let type;
     let code = this.state.converter;
-    if (this.state.converter.includes('rgb')) {
+    this.setState({ error: '' });
+    if (code.includes('rgb')) {
       type = 'rgb';
       code = code.trim();
-    } else if (this.state.converter.includes('#')) {
+    } else if (code.includes('#')) {
       type = 'hex';
       code = code.replace('#', '');
     } else {
-      console.log('ERror');
+      if (code.length === 6) {
+        type = 'hex';
+      } else if (code.length === 3) {
+        type = 'hex';
+        code = code + code;
+      } else {
+        this.setState({ result: '', error: 'RGB or Hex code not recognized!' });
+      }
     }
     const data = await axios.get(
       `https://www.thecolorapi.com/id?${type}=${code}`
@@ -35,6 +44,15 @@ class App extends Component {
     let convertedStyle = {
       background: `${this.state.result}`
     };
+    if (
+      this.state.result === '000000' ||
+      this.state.result === 'rgb(0, 0, 0)'
+    ) {
+      convertedStyle = {
+        background: `${this.state.result}`,
+        color: '#ffffff'
+      };
+    }
     return (
       <main className="app full-centralize full-screen">
         <header className="header">
@@ -45,14 +63,17 @@ class App extends Component {
             type="text"
             name="converter"
             className="converter__input"
-            placeholder="Type your RGB code or you Hex code"
+            placeholder="Type your RGB or Hex code"
             value={this.state.converter}
             onChange={this.onChange}
           />
-          <button onClick={this.handleConvert}>Convert</button>
-          <br />
-          <span style={convertedStyle}>{this.state.result}</span>
+          <button className="button" onClick={this.handleConvert}>
+            Convert
+          </button>
         </section>
+        <span className="converter__result" style={convertedStyle}>
+          {this.state.result} {this.state.error}
+        </span>
       </main>
     );
   }
