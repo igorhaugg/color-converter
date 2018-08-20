@@ -40,7 +40,19 @@ class App extends Component {
     }
   };
   onChange = e => {
-    this.setState({ [e.target.name]: e.target.value });
+    this.setState({ converter: e.target.value });
+  };
+  onClick = e => {
+    if (this.state.copied) {
+      this.setState({ result: '', converter: '' });
+    }
+  };
+  onEnterPress = e => {
+    if (e.charCode === 13) {
+      e.preventDefault();
+      e.stopPropagation();
+      this.handleConvert();
+    }
   };
   render() {
     let convertedStyle = {
@@ -48,7 +60,10 @@ class App extends Component {
     };
     if (
       this.state.result === '000000' ||
-      this.state.result === 'rgb(0, 0, 0)'
+      this.state.result === 'rgb(0, 0, 0)' ||
+      this.state.result.split('0').length - 1 >= 3 ||
+      (this.state.result.split('r').length > 1 &&
+        this.state.result.split('0').length - 1 >= 1)
     ) {
       convertedStyle = {
         background: `${this.state.result}`,
@@ -68,6 +83,8 @@ class App extends Component {
             placeholder="Type your RGB or Hex code"
             value={this.state.converter}
             onChange={this.onChange}
+            onClick={this.onClick}
+            onKeyPress={this.onEnterPress}
           />
           <button className="button" onClick={this.handleConvert}>
             Convert
@@ -75,20 +92,20 @@ class App extends Component {
         </section>
 
         {this.state.result && (
-          <CopyToClipboard
-            text={this.state.result}
-            onCopy={() => this.setState({ copied: true })}
-          >
-            <div className="converter__group">
-              <span className="converter__result" style={convertedStyle}>
-                {this.state.result}
-              </span>
+          <div className="converter__group">
+            <span className="converter__result" style={convertedStyle}>
+              {this.state.result}
+            </span>
+            <CopyToClipboard
+              text={this.state.result}
+              onCopy={() => this.setState({ copied: true })}
+            >
               <button className="button">Copy</button>
-              {this.state.copied && (
-                <span className="copied-message">Copied</span>
-              )}
-            </div>
-          </CopyToClipboard>
+            </CopyToClipboard>
+            {this.state.copied && (
+              <span className="copied-message">Copied</span>
+            )}
+          </div>
         )}
         {this.state.error}
       </main>
