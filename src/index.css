@@ -16,8 +16,6 @@ body {
 
 :root {
   --header-size: 8rem;
-
-  /* color: var(--main-color); */
 }
 
 button {

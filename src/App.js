@@ -1,111 +1,114 @@
-import React, { Fragment, Component } from 'react';
-import axios from 'axios';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import './App.css';
+import React, { useState } from "react";
+import axios from "axios";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import "./App.css";
 
-class App extends Component {
-  state = {
-    converter: '',
-    result: '',
-    error: '',
-    copied: false
-  };
-  handleConvert = async () => {
+const App = () => {
+  const [converter, setConverter] = useState("");
+  const [result, setResult] = useState("");
+  const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const handleConvert = async () => {
     let type;
-    let { converter: code } = this.state;
-    this.setState({ error: '', copied: false });
-    if (code.includes('rgb')) {
-      type = 'rgb';
+    let code = converter;
+    setError("");
+    setCopied(false);
+    if (code.includes("rgb")) {
+      type = "rgb";
       code = code.trim();
-    } else if (code.includes('#')) {
-      type = 'hex';
-      code = code.replace('#', '');
+    } else if (code.includes("#")) {
+      type = "hex";
+      code = code.replace("#", "");
     } else {
       if (code.length === 6) {
-        type = 'hex';
+        type = "hex";
       } else if (code.length === 3) {
-        type = 'hex';
+        type = "hex";
         code = code + code;
       } else {
-        this.setState({ result: '', error: 'RGB or Hex code not recognized!' });
+        setResult("");
+        setError("RGB or Hex code not recognized!");
       }
     }
-    const { data } = await axios.get(`https://www.thecolorapi.com/id?${type}=${code}`);
-    if (type === 'hex') {
-      this.setState({ result: data.rgb.value });
-    } else if (type === 'rgb') {
-      this.setState({ result: data.hex.value });
+    const { data } = await axios.get(
+      `https://www.thecolorapi.com/id?${type}=${code}`
+    );
+    if (type === "hex") {
+      setResult(data.rgb.value);
+    } else if (type === "rgb") {
+      setResult(data.hex.value);
     }
   };
-  onChange = e => {
-    this.setState({ converter: e.target.value });
+  const onChange = (e) => {
+    setConverter(e.target.value);
   };
-  onClick = e => {
-    if (this.state.copied) {
-      this.setState({ result: '', converter: '' });
+
+  const onClick = (e) => {
+    if (copied) {
+      setConverter("");
+      setResult("");
     }
   };
-  onEnterPress = e => {
+
+  const onEnterPress = (e) => {
     if (e.charCode === 13) {
       e.preventDefault();
       e.stopPropagation();
-      this.handleConvert();
+      handleConvert();
     }
   };
-  render() {
-    const { result, error, copied, converter } = this.state;
-    let convertedStyle = {
-      background: `${this.state.result}`
+  let convertedStyle = {
+    background: `${result}`,
+  };
+  if (
+    result === "000000" ||
+    result === "rgb(0, 0, 0)" ||
+    result.split("0").length - 1 >= 3 ||
+    (result.split("r").length > 1 && result.split("0").length - 1 >= 1)
+  ) {
+    convertedStyle = {
+      background: `${result}`,
+      color: "#ffffff",
     };
-    if (
-      result === '000000' ||
-      result === 'rgb(0, 0, 0)' ||
-      result.split('0').length - 1 >= 3 ||
-      (result.split('r').length > 1 && result.split('0').length - 1 >= 1)
-    ) {
-      convertedStyle = {
-        background: `${result}`,
-        color: '#ffffff'
-      };
-    }
-    return (
-      <main className='app full-centralize full-screen'>
-        <header className='header'>
-          <h1 className='header__title'>Color Converter</h1>
-        </header>
-        <section className='converter'>
-          <input
-            type='text'
-            name='converter'
-            className='converter__input'
-            placeholder='Type your RGB or Hex code'
-            value={converter}
-            onChange={this.onChange}
-            onClick={this.onClick}
-            onKeyPress={this.onEnterPress}
-          />
-          <button className='button' onClick={this.handleConvert}>
-            Convert
-          </button>
-        </section>
-
-        <div className='converter__group'>
-          {result && (
-            <Fragment>
-              <span className='converter__result' style={convertedStyle}>
-                {result}
-              </span>
-              <CopyToClipboard text={result} onCopy={() => this.setState({ copied: true })}>
-                <button className='button'>Copy</button>
-              </CopyToClipboard>
-              {copied && <span className='copied-message'>Copied</span>}
-            </Fragment>
-          )}
-        </div>
-        <div className='converter__error'>{error}</div>
-      </main>
-    );
   }
-}
+  return (
+    <main className="app full-centralize full-screen">
+      <header className="header">
+        <h1 className="header__title">Color Converter</h1>
+      </header>
+      <section className="converter">
+        <input
+          type="text"
+          name="converter"
+          className="converter__input"
+          placeholder="Type your RGB or Hex code"
+          value={converter}
+          onChange={onChange}
+          onClick={onClick}
+          onKeyPress={onEnterPress}
+        />
+        <button className="button" onClick={handleConvert}>
+          Convert
+        </button>
+      </section>
+
+      <div className="converter__group">
+        {result && (
+          <>
+            <span className="converter__result" style={convertedStyle}>
+              {result}
+            </span>
+            <CopyToClipboard text={result} onCopy={() => setCopied(true)}>
+              <button className="button">Copy</button>
+            </CopyToClipboard>
+            {copied && <span className="copied-message">Copied</span>}
+          </>
+        )}
+      </div>
+      <div className="converter__error">{error}</div>
+    </main>
+  );
+};
 
 export default App;
